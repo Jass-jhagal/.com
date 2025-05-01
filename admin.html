@@ -1,0 +1,70 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Dashboard</title>
+</head>
+<body>
+  <h1>Admin Dashboard</h1>
+  <div>
+    <h3>Set UPI ID</h3>
+    <input id="upiInput" placeholder="Enter UPI ID" />
+    <button onclick="setUpi()">Update</button>
+  </div>
+  <div>
+    <h3>Add Investment Scheme</h3>
+    <input id="title" placeholder="Title" />
+    <input id="desc" placeholder="Description" />
+    <input id="min" type="number" placeholder="Min Amount" />
+    <input id="rate" type="number" placeholder="Interest %" />
+    <input id="dur" type="number" placeholder="Duration (months)" />
+    <button onclick="addScheme()">Add</button>
+  </div>
+  <div>
+    <h3>All Users</h3>
+    <ul id="userList"></ul>
+  </div>
+
+  <script>
+    async function setUpi() {
+      const upiId = document.getElementById("upiInput").value;
+      await fetch("http://localhost:3000/api/admin/upi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ upiId })
+      });
+      alert("UPI Updated");
+    }
+
+    async function addScheme() {
+      const body = {
+        title: document.getElementById("title").value,
+        description: document.getElementById("desc").value,
+        minAmount: document.getElementById("min").value,
+        interestRate: document.getElementById("rate").value,
+        durationMonths: document.getElementById("dur").value
+      };
+      await fetch("http://localhost:3000/api/admin/scheme", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      alert("Scheme Added");
+    }
+
+    async function fetchUsers() {
+      const res = await fetch("http://localhost:3000/api/admin/users");
+      const users = await res.json();
+      const list = document.getElementById("userList");
+      list.innerHTML = "";
+      users.forEach(u => {
+        const li = document.createElement("li");
+        li.innerText = u.email + " | " + (u.investments?.length || 0) + " investments";
+        list.appendChild(li);
+      });
+    }
+
+    fetchUsers();
+  </script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>User Dashboard</title>
+</head>
+<body>
+  <h1>User Dashboard</h1>
+  <div id="upiSection"></div>
+  <h3>Available Schemes</h3>
+  <ul id="schemeList"></ul>
+
+  <script>
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    async function loadSchemes() {
+      const res = await fetch("http://localhost:3000/api/admin/schemes");
+      const schemes = await res.json();
+      const list = document.getElementById("schemeList");
+      list.innerHTML = "";
+      schemes.forEach(s => {
+        const li = document.createElement("li");
+        li.innerHTML = \`\${s.title} - \${s.description} - ₹\${s.minAmount}
+          <button onclick='invest("\${s._id}")'>Invest</button>\`;
+        list.appendChild(li);
+      });
+    }
+
+    async function loadUpi() {
+      const res = await fetch("http://localhost:3000/api/admin/upi");
+      const data = await res.json();
+      document.getElementById("upiSection").innerText = "Pay to: " + data.upiId;
+    }
+
+    async function invest(schemeId) {
+      await fetch("http://localhost:3000/api/user/invest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user._id, schemeId, amount: 500 })
+      });
+      alert("Investment recorded as pending.");
+    }
+
+    loadUpi();
+    loadSchemes();
+  </script>
+</body>
+</html>
